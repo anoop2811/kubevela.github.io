@@ -72,4 +72,12 @@ After the application is deployed, you can use the `vela debug <application-name
 
 You can also use `vela debug <application-name> -s <component-name>` to see all resources rendered in a single component.
 
-![](https://kubevela.io/images/1.4/debug-application-comp.gif)
+![](https://static.kubevela.net/images/1.4/debug-application-comp.gif)
+
+## Related Documentation
+
+- [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md)
+- [Debugging with Webhook Integration](./debugging-kubevela-with-webhook.md)
+- [Debugging Definition](../cue/definition-edit.md#debug-with-applications)
+- [Debugging with Dry-Run](../../tutorials/dry-run.md)
+
