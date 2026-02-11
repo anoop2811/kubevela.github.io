@@ -17,7 +17,7 @@ Before you begin, ensure you have:
 - An IDE with Go debugger support (VS Code or IntelliJ IDEA / GoLand)
 
 :::note
-For basic controller debugging without webhooks, see [Debugging KubeVela Controllers](./debugging-kubevela-controllers).
+For basic controller debugging without webhooks, see [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md).
 :::
 
 ## Overview
@@ -862,7 +862,7 @@ exit 0
 
 ## Further Reading
 
-- [Debugging KubeVela Controllers](./debugging-kubevela-controllers)
+- [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md)
 - [Kubernetes Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 - [Kubernetes Webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 - [KubeVela Developer Guide](https://kubevela.io/docs/contributor/overview)
@@ -874,4 +874,4 @@ exit 0
 - [Debugging Workflow](./debug.md)
 - [Debugging Definition](../cue/definition-edit.md#debug-with-applications)
 - [Debugging with Dry-Run](../../tutorials/dry-run.md)
-- [Debugging KubeVela Controllers](./debugging-kubevela-controllers)
+- [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md)
