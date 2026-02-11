@@ -17,7 +17,7 @@ Before you begin, ensure you have:
 - An IDE with Go debugger support (VS Code or IntelliJ IDEA / GoLand)
 
 :::note
-For basic controller debugging without webhooks, see [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md).
+For basic controller debugging without webhooks, see [Debugging KubeVela Controllers](./debugging-kubevela-controllers).
 :::
 
 ## Overview
@@ -135,7 +135,7 @@ If you're using Rancher Desktop or other tools that occupy port 9443, change `We
 ![Webhook Config Code](/img/1.10/debug/webhook-config-code.png)
 ## Step 3: Start the Controller in Debug Mode
 
-Configure your IDE to run the controller in debug mode. See [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md) for detailed IDE setup instructions.
+Configure your IDE to run the controller in debug mode. See [Debugging KubeVela Controllers](./debugging-kubevela-controllers) for detailed IDE setup instructions.
 
 ### Verify Webhook Server is Running
 
@@ -862,7 +862,7 @@ exit 0
 
 ## Further Reading
 
-- [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md)
+- [Debugging KubeVela Controllers](./debugging-kubevela-controllers)
 - [Kubernetes Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 - [Kubernetes Webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 - [KubeVela Developer Guide](https://kubevela.io/docs/contributor/overview)
@@ -874,4 +874,4 @@ exit 0
 - [Debugging Workflow](./debug.md)
 - [Debugging Definition](../cue/definition-edit.md#debug-with-applications)
 - [Debugging with Dry-Run](../../tutorials/dry-run.md)
-- [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md)
+- [Debugging KubeVela Controllers](./debugging-kubevela-controllers)
