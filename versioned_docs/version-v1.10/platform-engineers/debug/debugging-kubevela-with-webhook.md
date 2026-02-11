@@ -256,13 +256,9 @@ metadata:
   annotations:
     meta.helm.sh/release-name: kubevela
     meta.helm.sh/release-namespace: vela-system
-  creationTimestamp: "2025-02-26T15:01:29Z"
-  generation: 2
   labels:
     app.kubernetes.io/managed-by: Helm
   name: kubevela-vela-core-admission
-  resourceVersion: "983"
-  uid: fcfc8323-112d-47d4-b0af-93f4aaf2c664
 webhooks:
   - admissionReviewVersions:
       - v1beta1
