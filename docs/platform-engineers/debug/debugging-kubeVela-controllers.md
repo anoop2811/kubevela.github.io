@@ -1,4 +1,5 @@
 ---
+id: debugging-kubevela-controllers
 title: Debugging KubeVela Controllers
 ---
 
