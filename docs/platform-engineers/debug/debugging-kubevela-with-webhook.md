@@ -17,7 +17,7 @@ Before you begin, ensure you have:
 - An IDE with Go debugger support (VS Code or IntelliJ IDEA / GoLand)
 
 :::note
-For basic controller debugging without webhooks, see [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md).
+For basic controller debugging without webhooks, see [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md).
 :::
 
 ## Overview
@@ -104,7 +104,7 @@ Ensure the `k8s-webhook-server/serving-certs` directory contains:
 - `tls.crt`
 - `tls.key`
 
-![img_2.png](img_2.png)
+![Webhook Serving Certs Directory](/img/1.10/debug/webhook-serving-certs-directory.png)
 
 ## Step 2: Enable Webhook in Source Code
 
@@ -132,10 +132,10 @@ WebhookPort: 9445,
 If you're using Rancher Desktop or other tools that occupy port 9443, change `WebhookPort` to an available port (e.g., 9445).
 :::
 
-![img_4.png](img_4.png)
+![Webhook Config Code](/img/1.10/debug/webhook-config-code.png)
 ## Step 3: Start the Controller in Debug Mode
 
-Configure your IDE to run the controller in debug mode. See [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md) for detailed IDE setup instructions.
+Configure your IDE to run the controller in debug mode. See [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md) for detailed IDE setup instructions.
 
 ### Verify Webhook Server is Running
 
@@ -442,7 +442,7 @@ When you apply the manifest, the webhook is triggered and execution will pause a
 - Examine the admission request
 - Test validation logic
 
-![img_5.png](img_5.png)
+![Webhook Debugger with Breakpoint](/img/1.10/debug/webhook-debugger-breakpoint.png)
 ## Automated Setup Script
 
 To automate the entire setup process, use the following script.
@@ -515,9 +515,36 @@ PORT="${2:-}"
 
 # If IP not provided, get current machine IP
 if [[ -z "$IP_ADDR" ]]; then
-  IP_ADDR=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null)
+  # Try macOS method first
+  if command -v ipconfig &> /dev/null; then
+    IP_ADDR=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null)
+  fi
+  
+  # If still empty, try Linux methods
+  if [[ -z "$IP_ADDR" ]]; then
+    # Method 1: hostname -I (Linux)
+    if command -v hostname &> /dev/null && hostname -I &> /dev/null; then
+      IP_ADDR=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+  fi
+  
+  # If still empty, try cross-platform ifconfig/ip method
+  if [[ -z "$IP_ADDR" ]]; then
+    # Method 2: ip command (modern Linux)
+    if command -v ip &> /dev/null; then
+      IP_ADDR=$(ip route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}')
+    fi
+  fi
+  
+  # Final fallback: parse ifconfig output (works on both Linux and macOS)
+  if [[ -z "$IP_ADDR" ]] && command -v ifconfig &> /dev/null; then
+    IP_ADDR=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1 | sed 's/addr://')
+  fi
+  
+  # If we still couldn't detect IP, error out
   if [[ -z "$IP_ADDR" ]]; then
     echo "ERROR: Could not determine current IP address."
+    echo "Please provide IP address manually: $0 <IP_ADDRESS> <PORT>"
     usage
   fi
 fi
@@ -835,7 +862,7 @@ exit 0
 
 ## Further Reading
 
-- [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md)
+- [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md)
 - [Kubernetes Admission Controllers](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/)
 - [Kubernetes Webhooks](https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
 - [KubeVela Developer Guide](https://kubevela.io/docs/contributor/overview)
@@ -847,5 +874,5 @@ exit 0
 - [Debugging Workflow](./debug.md)
 - [Debugging Definition](../cue/definition-edit.md#debug-with-applications)
 - [Debugging with Dry-Run](../../tutorials/dry-run.md)
-- [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md)
+- [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md)
 

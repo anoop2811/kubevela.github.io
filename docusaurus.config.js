@@ -6,7 +6,6 @@ module.exports = {
   baseUrl: '/',
   trailingSlash: true,
   onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicons/favicon.ico',
   organizationName: 'kubevela', // Usually your GitHub org/user name.
   projectName: 'kubevela.io', // Usually your repo name.
@@ -24,6 +23,9 @@ module.exports = {
   },
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
   },
   themes: ['@docusaurus/theme-mermaid'],
   themeConfig: {

@@ -19,7 +19,7 @@ Before you begin, ensure you have:
 - [Delve](https://github.com/go-delve/delve) debugger (will be installed in the container)
 
 :::note
-For local debugging without containers, see [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md).
+For local debugging without containers, see [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md).
 :::
 
 ## Overview
@@ -103,7 +103,7 @@ docker push <docker-hub-username>/kubevela:debug
 
 Replace `<docker-hub-username>` with your actual Docker Hub username or registry path.
 
-![img_6.png](img_6.png)
+![Docker Build and Push Debug Image](/img/1.10/debug/docker-build-push-debug-image.png)
 ## Step 2: Modify the kubevela-controller.yaml
 
 Edit the file `charts/vela-core/templates/kubevela-controller.yaml` to make the following changes:
@@ -116,7 +116,7 @@ Remove the `--enable-leader-election` argument from the `spec.containers.args` s
 Leader election ensures high availability by keeping only one active controller instance. During debugging, breakpoints can pause the pod for extended periods, potentially triggering restarts. Disabling leader election prevents this interruption during debugging sessions.
 :::
 
-![img_7.png](img_7.png)
+![Remove Leader Election Config](/img/1.10/debug/remove-leader-election-config.png)
 ### Update the Deployment Image
 
 In the deployment manifest, find the `spec.containers.image` section and update it with your debug image:
@@ -127,7 +127,7 @@ image: <docker-hub-username>/kubevela:debug
 
 Ensure you use the same image name and tag specified during the `docker push` command.
 
-![img_8.png](img_8.png)
+![Update Deployment Image](/img/1.10/debug/update-deployment-image.png)
 
 ### Remove Readiness and Liveness Probes
 
@@ -137,7 +137,7 @@ Disable the readiness and liveness probes by removing both the `readinessProbe` 
 Disabling probes prevents Kubernetes from restarting the pod when it becomes unresponsive during debugging. Breakpoints can cause the application to halt, leading to probe failures and unwanted restarts.
 :::
 
-![img_9.png](img_9.png)
+![Disable Health Probes Config](/img/1.10/debug/disable-health-probes-config.png)
 ## Step 3: Deploy KubeVela Core to Your Kubernetes Cluster
 
 Navigate to the root directory of the KubeVela repository and execute the following Helm command:
@@ -291,11 +291,11 @@ To start debugging:
    - Click `Apply` and then `OK`
    - Select your configuration and click the Debug button (Shift+F9)
 
-![img_10.png](img_10.png)
+![GoLand Remote Debug Configuration](/img/1.10/debug/goland-remote-debug-config.png)
 
 Once connected, you'll see a message in the port forwarding terminal indicating active connections on port 40000.
 
-![img_11.png](img_11.png)
+![Port Forward Active Connection](/img/1.10/debug/port-forward-active-connection.png)
 
 ## Step 7: Debug with Breakpoints
 
@@ -353,7 +353,7 @@ When execution reaches your breakpoint:
 - You can inspect variables, evaluate expressions, and step through code
 - Use standard debugging controls (Continue, Step Over, Step Into, Step Out)
 
-![img_12.png](img_12.png)
+![Debugger Stopped at Breakpoint](/img/1.10/debug/debugger-breakpoint-hit.png)
 
 :::caution
 Do not modify the source code while debugging. The running container was built from the current source, and changes can cause the debugger to behave abnormally or lose synchronization.
@@ -395,7 +395,7 @@ Do not modify the source code while debugging. The running container was built f
 
 ## Next Steps
 
-- Learn about [Debugging KubeVela Controllers](./debugging-kubeVela-controllers.md) for local debugging
+- Learn about [Debugging KubeVela Controllers](./debugging-kubevela-controllers.md) for local debugging
 - Explore [Debugging with Webhook Integration](./debugging-kubevela-with-webhook.md) for webhook debugging
 - Check the [KubeVela Contributor Guide](../../contributor/overview) for more development resources
 

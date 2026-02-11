@@ -5,7 +5,7 @@ description: Learn how to set up a multicluster KubeVela environment for debuggi
 
 # KubeVela Core Multi-Cluster IDE Debugging Guide
 
-This guide walks you through setting up a multicluster KubeVela environment for debugging the core controller from your IDE.
+This guide walks you through setting up a multicluster KubeVela environment (hub-and-spoke architecture) for debugging the core controller from your IDE.
 
 ## Prerequisites
 
@@ -14,16 +14,16 @@ This guide walks you through setting up a multicluster KubeVela environment for 
 - KubeVela source code
 - IDE with debugging capabilities (e.g., GoLand, VS Code)
 
-## Part 1: Master Cluster Setup
+## Part 1: Hub Cluster Setup
 
-### Step 1: Create Master Cluster
+### Step 1: Create Hub Cluster
 
 ```bash
 # Command Format:
 k3d cluster create {clustername}
 
 # Example:
-k3d cluster create master
+k3d cluster create hub
 ```
 
 ### Step 2: Export Kubeconfig
@@ -34,8 +34,8 @@ k3d kubeconfig get {clustername} > ~/.kube/{clustername}.yaml
 export KUBECONFIG=~/.kube/{clustername}.yaml
 
 # Example:
-k3d kubeconfig get master > ~/.kube/master.yaml
-export KUBECONFIG=~/.kube/master.yaml
+k3d kubeconfig get hub > ~/.kube/hub.yaml
+export KUBECONFIG=~/.kube/hub.yaml
 ```
 
 ### Step 3: Install Core Components
@@ -54,14 +54,14 @@ Edit the `setup-webhook-debugger.sh` script and update the kubeconfig location:
 ```bash
 #--- STEP 10: Export KUBECONFIG ------------------------------------------------
 echo "==> STEP 10: Export KUBECONFIG"
-export KUBECONFIG="${HOME}/.kube/master.yaml"
+export KUBECONFIG="${HOME}/.kube/hub.yaml"
 echo "Using KUBECONFIG=${KUBECONFIG}"
 ```
 
 ### Step 5: Run Debugger Setup
 
 ```bash
-./setup-debugger.sh
+./setup-webhook-debugger.sh
 ```
 
 ## Part 3: IDE Configuration
@@ -72,17 +72,17 @@ In your IDE's build/debug configuration, add the following environment variable:
 
 ```bash
 # Format:
-KUBECONFIG={path-to-master-kubeconfig}
+KUBECONFIG={path-to-hub-kubeconfig}
 
 # Example:
-KUBECONFIG=/Users/viskumar/.kube/master.yaml
+KUBECONFIG=/Users/viskumar/.kube/hub.yaml
 ```
 
-Replace the path with the actual location of your master cluster's kubeconfig file.
+Replace the path with the actual location of your hub cluster's kubeconfig file.
 
 **Why is this needed?**
 
-When the core controller runs in your IDE, it needs to know which cluster to connect to. The KUBECONFIG environment variable tells the controller to use the master cluster's configuration.
+When the core controller runs in your IDE, it needs to know which cluster to connect to. The KUBECONFIG environment variable tells the controller to use the hub cluster's configuration.
 
 ### Step 7: Start the IDE in Debug Mode
 
@@ -96,7 +96,7 @@ Launch your IDE debugger. The core controller will now run from your IDE instead
 
 In a multicluster setup, Cluster Gateway is the critical component that enables:
 
-- Communication between the master cluster and slave clusters
+- Communication between the hub cluster and spoke clusters
 - Routing of API requests to remote clusters
 - Centralised management of multiple Kubernetes clusters
 - Secure authentication and authorisation across clusters
@@ -220,26 +220,26 @@ NAME                                                  DESIRED   CURRENT   READY 
 replicaset.apps/kubevela-cluster-gateway-6f4785b888   1         1         1       82s
 ```
 
-## Part 5: Slave Cluster Setup
+## Part 5: Spoke Cluster Setup
 
-### Step 11: Create Slave Cluster
+### Step 11: Create Spoke Cluster
 
 ```bash
 # Command Format:
 k3d cluster create {clustername}
 
 # Example:
-k3d cluster create slave
+k3d cluster create spoke
 ```
 
-### Step 12: Export Slave Kubeconfig
+### Step 12: Export Spoke Kubeconfig
 
 ```bash
 # Command Format:
 k3d kubeconfig get {clustername} > ~/.kube/{clustername}.yaml
 
 # Example:
-k3d kubeconfig get slave > ~/.kube/slave.yaml
+k3d kubeconfig get spoke > ~/.kube/spoke.yaml
 ```
 
 ## Part 6: Configure Kubeconfig for Multicluster
@@ -250,7 +250,7 @@ k3d kubeconfig get slave > ~/.kube/slave.yaml
 
 By default, k3d clusters are configured to be accessed via localhost (0.0.0.0), which works fine for local development on a single machine. However, in a multicluster setup:
 
-- **Host IP is required**: The master cluster needs to reach the slave cluster over the network, not via localhost
+- **Host IP is required**: The hub cluster needs to reach the spoke cluster over the network, not via localhost
 - **TLS verification skip**: k3d uses self-signed certificates that won't validate against the host IP
 - **Certificate removal**: Since we're skipping TLS verification, we don't need the certificate authority data
 
@@ -258,7 +258,7 @@ These changes allow the Cluster Gateway to communicate with remote clusters usin
 
 ### Step 13: Patch Kubeconfig Files
 
-Navigate to your `.kube` directory (usually `~/.kube/`) and edit both `master.yaml` and `slave.yaml`.
+Navigate to your `.kube` directory (usually `~/.kube/`) and edit both `hub.yaml` and `spoke.yaml`.
 
 **Required changes for BOTH files:**
 
@@ -269,14 +269,21 @@ Navigate to your `.kube` directory (usually `~/.kube/`) and edit both `master.ya
 **How to find your host IP:**
 
 ```bash
-# On Linux/Mac
+# On Linux
 hostname -I | awk '{print $1}'
 
-# Or check your network settings
-ifconfig | grep "inet " | grep -v 127.0.0.1
+# On macOS
+ipconfig getifaddr en0
+
+# Alternative command that works on both Linux and macOS
+ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1
 ```
 
-**Before (slave.yaml example):**
+:::tip
+On macOS, `en0` is typically your primary network interface. If that doesn't work, try `en1` or run `ifconfig` to see all available interfaces.
+:::
+
+**Before (spoke.yaml example):**
 
 ```yaml
 apiVersion: v1
@@ -284,23 +291,23 @@ clusters:
 - cluster:
     certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...
     server: https://0.0.0.0:49292
-  name: k3d-slave
+  name: k3d-spoke
 contexts:
 - context:
-    cluster: k3d-slave
-    user: admin@k3d-slave
-  name: k3d-slave
-current-context: k3d-slave
+    cluster: k3d-spoke
+    user: admin@k3d-spoke
+  name: k3d-spoke
+current-context: k3d-spoke
 kind: Config
 preferences: {}
 users:
-- name: admin@k3d-slave
+- name: admin@k3d-spoke
   user:
     client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...
     client-key-data: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0t...
 ```
 
-**After (slave.yaml example):**
+**After (spoke.yaml example):**
 
 ```yaml
 apiVersion: v1
@@ -308,60 +315,60 @@ clusters:
 - cluster:
     server: https://10.131.101.169:49292
     insecure-skip-tls-verify: true
-  name: k3d-slave
+  name: k3d-spoke
 contexts:
 - context:
-    cluster: k3d-slave
-    user: admin@k3d-slave
-  name: k3d-slave
-current-context: k3d-slave
+    cluster: k3d-spoke
+    user: admin@k3d-spoke
+  name: k3d-spoke
+current-context: k3d-spoke
 kind: Config
 preferences: {}
 users:
-- name: admin@k3d-slave
+- name: admin@k3d-spoke
   user:
     client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...
     client-key-data: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0t...
 ```
 
-Repeat this process for `master.yaml` with the appropriate IP and port.
+Repeat this process for `hub.yaml` with the appropriate IP and port.
 
 ## Part 7: Join Clusters
 
-### Step 14: Switch to Master Context
+### Step 14: Switch to Hub Context
 
 ```bash
 # Command Format:
-export KUBECONFIG=~/.kube/{master-clustername}.yaml
+export KUBECONFIG=~/.kube/{hub-clustername}.yaml
 
 # Example:
-export KUBECONFIG=~/.kube/master.yaml
+export KUBECONFIG=~/.kube/hub.yaml
 ```
 
-**Why switch to master context?**
+**Why switch to hub context?**
 
-The `vela cluster join` command needs to be executed from the master cluster context because:
+The `vela cluster join` command needs to be executed from the hub cluster context because:
 
-- It registers the slave cluster with the master's Cluster Gateway
-- It creates necessary secrets and configurations in the master cluster
+- It registers the spoke cluster with the hub's Cluster Gateway
+- It creates necessary secrets and configurations in the hub cluster
 - It establishes a trust relationship between clusters
 
-### Step 15: Join Slave Cluster
+### Step 15: Join Spoke Cluster
 
 ```bash
 # Command Format:
-vela cluster join ~/.kube/{slave-clustername}.yaml
+vela cluster join ~/.kube/{spoke-clustername}.yaml
 
 # Example:
-vela cluster join ~/.kube/slave.yaml
+vela cluster join ~/.kube/spoke.yaml
 ```
 
 **What happens during cluster join?**
 
 This command:
 
-- Reads the slave cluster's kubeconfig
-- Creates a secret in the master cluster containing slave cluster credentials
+- Reads the spoke cluster's kubeconfig
+- Creates a secret in the hub cluster containing spoke cluster credentials
 - Registers the cluster with the Cluster Gateway
 - Validates connectivity between clusters
 
@@ -376,7 +383,7 @@ Expected output:
 ```
 CLUSTER      ALIAS    TYPE               ENDPOINT                        ACCEPTED    LABELS
 local                 Internal           -                               true
-k3d-slave             X509Certificate    https://10.131.101.169:49292    true
+k3d-spoke             X509Certificate    https://10.131.101.169:49292    true
 ```
 
 ## Part 8: Test Multicluster Deployment
@@ -422,7 +429,7 @@ spec:
   policies:
     - name: topo
       properties:
-        clusters: ["local", "k3d-slave"]
+        clusters: ["local", "k3d-spoke"]
       type: topology
 ```
 
@@ -430,27 +437,27 @@ spec:
 
 Check that pods are running in both clusters:
 
-**Master cluster:**
+**Hub cluster:**
 
 ```bash
 # Command Format:
-export KUBECONFIG=~/.kube/{master-clustername}.yaml
+export KUBECONFIG=~/.kube/{hub-clustername}.yaml
 kubectl get pods
 
 # Example:
-export KUBECONFIG=~/.kube/master.yaml
+export KUBECONFIG=~/.kube/hub.yaml
 kubectl get pods
 ```
 
-**Slave cluster:**
+**Spoke cluster:**
 
 ```bash
 # Command Format:
-export KUBECONFIG=~/.kube/{slave-clustername}.yaml
+export KUBECONFIG=~/.kube/{spoke-clustername}.yaml
 kubectl get pods
 
 # Example:
-export KUBECONFIG=~/.kube/slave.yaml
+export KUBECONFIG=~/.kube/spoke.yaml
 kubectl get pods
 ```
 
@@ -461,15 +468,15 @@ You should see the podinfo pods and related resources running in both clusters, 
 ### Issue: Controller can't connect to the cluster
 
 - Verify the `KUBECONFIG` environment variable is set correctly in the IDE
-- Check that `master.yaml` is accessible from the path specified
+- Check that `hub.yaml` is accessible from the path specified
 
-### Issue: Slave cluster not reachable
+### Issue: Spoke cluster not reachable
 
 - Verify the host IP is correct in the kubeconfig files
 - Ensure k3d clusters are running: `k3d cluster list`
 - Check network connectivity between clusters
 
-### Issue: Pods not deploying to the slave cluster
+### Issue: Pods not deploying to the spoke cluster
 
 - Verify cluster is registered: `vela cluster ls`
 - Check Cluster Gateway logs: `kubectl logs -n vela-system -l app=kubevela-cluster-gateway`

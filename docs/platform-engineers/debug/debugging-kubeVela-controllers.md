@@ -61,7 +61,7 @@ Create `.vscode/launch.json` in the repository root:
 ```
 
 Start the debugger with **Run > Start Debugging** or press `F5`.
-![img_3.png](img_3.png)
+![VS Code Debug Start](/img/1.10/debug/vscode-debug-start.png)
 ### IntelliJ IDEA / GoLand
 
 1. Open **Run > Edit Configurations**.
@@ -70,8 +70,8 @@ Start the debugger with **Run > Start Debugging** or press `F5`.
 4. Add `--log-debug=true` under **Program arguments**.
 5. Click **Apply**, then click the **Debug** button.
 
-![img.png](img.png)
-![img_1.png](img_1.png)
+![GoLand Run Configuration](/img/1.10/debug/goland-run-configuration.png)
+![GoLand Debug Button](/img/1.10/debug/goland-debug-button.png)
 
 ## Step 4: Verify the Setup
 

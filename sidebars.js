@@ -346,7 +346,7 @@ module.exports = {
         },
         {
           'Debug': [
-            'platform-engineers/debug/debugging-kubeVela-controllers',
+            'platform-engineers/debug/debugging-kubevela-controllers',
             'platform-engineers/debug/debugging-kubevela-with-webhook',
             'platform-engineers/debug/remote-debugging-kubevela-applications',
             'platform-engineers/debug/multicluster-debugging',
