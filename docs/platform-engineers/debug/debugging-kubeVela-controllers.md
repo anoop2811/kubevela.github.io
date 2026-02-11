@@ -215,7 +215,7 @@ make test
 
 ---
 
-## Related Documentation
+## Related Documentation 
 
 - [Debugging Workflow](./debug.md)
 - [Debugging Definition](../cue/definition-edit.md#debug-with-applications)
