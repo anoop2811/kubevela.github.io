@@ -133,7 +133,6 @@ module.exports = {
             'end-user/workflow/inputs-outputs',
             'end-user/workflow/if-condition',
             'end-user/workflow/timeout',
-            'platform-engineers/debug/debug',
           ],
         },
         {
@@ -167,7 +166,7 @@ module.exports = {
             'end-user/workflow/component-dependency-parameter',
             'end-user/version-control',
             'end-user/definition-version-control',
-            'tutorials/dry-run',
+            'platform-engineers/debug/dry-run',
             'tutorials/access-application',
             'tutorials/auto-scaler',
             'tutorials/debug-app',
@@ -359,7 +358,14 @@ module.exports = {
             'contributor/principle-of-test',
           ],
         },
-        'platform-engineers/debug/dry-run',
+        {
+          'Debug': [
+            'platform-engineers/debug/debugging-kubevela-controllers',
+            'platform-engineers/debug/debugging-kubevela-with-webhook',
+            'platform-engineers/debug/remote-debugging-kubevela-applications',
+            'platform-engineers/debug/multicluster-debugging',
+          ],
+        },
       ],
     },
     {
